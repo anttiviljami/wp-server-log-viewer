@@ -1,0 +1,28 @@
+{
+  "name": "wp-access-log-viewer",
+  "version": "1.0.0",
+  "description": "View and analyse your server access logs from within the WordPress admin dashboard",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anttiviljami/wp-access-log-viewer.git"
+  },
+  "keywords": [
+    "access",
+    "log",
+    "viewer",
+    "nginx",
+    "apache",
+    "wordpress",
+    "plugin"
+  ],
+  "author": "anttiviljami",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/anttiviljami/wp-access-log-viewer/issues"
+  },
+  "homepage": "https://github.com/anttiviljami/wp-access-log-viewer#readme"
+}
