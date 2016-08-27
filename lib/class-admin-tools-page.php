@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists('Admin_Tools_Page') ) :
+if ( ! class_exists('Admin_Tools_Page') ) :
 
 class Admin_Tools_Page {
 
@@ -55,7 +55,7 @@ class Admin_Tools_Page {
 
   public function render_last_rows() {
     require_once 'class-access-log-utils.php';
-    $rows = Access_Log_Utils::ftail( $this->logfile, 10 );
+    $rows = Access_Log_Utils::readlines( $this->logfile, -1, 30 );
 
 ?>
 <h2><?php echo basename( $this->logfile ); ?></h2>
