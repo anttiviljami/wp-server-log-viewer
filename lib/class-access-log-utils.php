@@ -3,7 +3,7 @@
 if ( ! class_exists('Access_Log_Utils') ) :
 
 class Access_Log_Utils {
-  public static function readlines( $filepath, $start = 0, $lines = 1, $adaptive = true ) {
+  public static function readlines( $filepath, $offset = 0, $lines = 1, $adaptive = true ) {
     // Open file
     $f = @fopen( $filepath, 'rb' );
     $filesize = filesize( $filepath );
@@ -19,7 +19,7 @@ class Access_Log_Utils {
       $buffer = ( $lines < 2 ? 64 : ( $lines < 10 ? 512 : 4096 ) );
     }
 
-    if( $start < 0 ) {
+    if( $offset < 0 ) {
       // Jump to last character
       fseek( $f, -1, SEEK_END );
 
@@ -30,7 +30,7 @@ class Access_Log_Utils {
       }
     }
     else {
-      // start from top of file
+      // offset from top of file
       fseek( $f, 0, SEEK_SET );
     }
 
@@ -38,9 +38,15 @@ class Access_Log_Utils {
     $output = '';
     $chunk = '';
 
+    // save the original number of lines we wanted
+    $origlines = $lines;
+
+    // add number of offset lines to $lines so we go far enough in the file
+    $lines += $offset < 0 ? abs( $offset + 1 ) : $offset;
+
     // While we would like more
     while ( $lines >= 0 ) {
-      if( $start < 0 ) {
+      if( $offset < 0 ) {
         // Figure out how far back we should jump
         $seek = min( ftell( $f ), $buffer );
 
@@ -71,7 +77,7 @@ class Access_Log_Utils {
     // While we have too many lines
     // (Because of buffer size we might have read too many)
     while ( $lines++ < 0 ) {
-      if( $start < 0 ) {
+      if( $offset < 0 ) {
         // Find first newline and remove all text before that
         $output = substr( $output, strpos( $output, "\n" ) + 1 );
       }
@@ -85,15 +91,15 @@ class Access_Log_Utils {
     fclose( $f );
 
     // Strip the offset lines
-    $lines = array_filter( explode( "\n", $output ) );
-    if( $start < 0 ) {
-      $lines = array_slice( $lines, -abs( $start + 1 ) );
+    $rows = array_filter( explode( "\n", $output ) );
+    if( $offset < 0 ) {
+      $rows = array_slice( $rows, 0, $origlines );
     }
     else {
-      $lines = array_slice( $lines, $start );
+      $rows = array_slice( $rows, $offset, $origlines );
     }
 
-    return $lines;
+    return $rows;
   }
 }
 

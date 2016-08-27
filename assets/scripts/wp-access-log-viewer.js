@@ -3,8 +3,19 @@
 (function($) {
   $(window).load(function() {
     $('.log-table-view').on('scroll', function(e) {
-      if( 0 == $(this).scrollTop() ) {
+      var $this = $(this);
+      if( 0 == $this.scrollTop() ) {
+        var $overlay = $('<div class="overlay"><div>');
+        $this.append( $overlay );
         // load more lines
+        var offset = $('td', this).length;
+        $.post(window.ajaxurl, {'action':'fetch_log_rows','offset':offset}, function(response) {
+          var oldheight = $('table', $this).height();
+          console.log(offset);
+          $('tbody', $this).prepend(response);
+          $this.scrollTop($('table', $this).height() - oldheight);
+          $overlay.remove();
+        });
       }
     });
 

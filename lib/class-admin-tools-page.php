@@ -20,6 +20,7 @@ class Admin_Tools_Page {
 
     add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
     add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
+    add_action( 'wp_ajax_fetch_log_rows', array( $this, 'ajax_fetch_log_rows' ) );
 	}
 
   public function admin_enqueue_styles( $hook ) {
@@ -48,29 +49,42 @@ class Admin_Tools_Page {
 ?>
 <div class="wrap">
   <h1><?php _e('Access Log Viewer', 'wp-access-log-viewer'); ?></h1>
-  <?php $this->render_last_rows(); ?>
+  <?php $this->render_log_view(); ?>
 </div>
 <?php
   }
 
-  public function render_last_rows() {
-    require_once 'class-access-log-utils.php';
-    $rows = Access_Log_Utils::readlines( $this->logfile, -1, 30 );
-
+  public function render_log_view() {
 ?>
 <h2><?php echo basename( $this->logfile ); ?></h2>
 <div class="log-table-view">
   <table class="wp-list-table widefat striped" cellspacing="0">
     <tbody>
-      <?php foreach( $rows as $row ) : ?>
-      <tr>
-        <td><span class="logrow"><?php echo $row; ?></span></td>
-      </tr>
-      <?php endforeach; ?>
+      <?php $this->render_rows( -1, 50 ); ?>
     </tbody>
   </table>
 </div>
 <?php
+  }
+
+  public function render_rows( $offset, $lines ) {
+    require_once 'class-access-log-utils.php';
+    $rows = Access_Log_Utils::readlines( $this->logfile, $offset, $lines );
+
+    foreach( $rows as $row ) : ?>
+      <tr>
+        <td><span class="logrow"><?php echo $row; ?></span></td>
+      </tr>
+    <?php endforeach;
+  }
+
+  public function ajax_fetch_log_rows() {
+    $offset = 0;
+    if( isset( $_REQUEST['offset'] ) ) {
+      $offset = -( (int) $_REQUEST['offset'] );
+    }
+    $this->render_rows( $offset, 100 );
+    exit;
   }
 }
 

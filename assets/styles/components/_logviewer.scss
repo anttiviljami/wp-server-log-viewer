@@ -1,4 +1,5 @@
 .log-table-view {
+  position: relative;
   max-width: 100%;
   max-height: 250px;
   overflow: auto;
@@ -7,5 +8,13 @@
     border: 0;
     white-space: nowrap;
     font-family: monospace;
+  }
+  .overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,.5);
   }
 }
