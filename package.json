@@ -4,6 +4,7 @@
   "description": "View and analyse your server access logs from within the WordPress admin dashboard",
   "main": "gulpfile.js",
   "scripts": {
+    "build": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,5 +25,12 @@
   "bugs": {
     "url": "https://github.com/anttiviljami/wp-access-log-viewer/issues"
   },
-  "homepage": "https://github.com/anttiviljami/wp-access-log-viewer#readme"
+  "homepage": "https://github.com/anttiviljami/wp-access-log-viewer#readme",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-sass": "^2.3.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^2.0.0"
+  }
 }

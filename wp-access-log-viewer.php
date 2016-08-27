@@ -39,6 +39,12 @@ class WP_Access_Log_Viewer {
   }
 
   private function __construct() {
+    // create the admin page
+    require_once 'lib/class-admin-tools-page.php';
+    if ( class_exists( 'Admin_Tools_Page' ) ) {
+      Admin_Tools_Page::init();
+    }
+
     // load textdomain for translations
     add_action( 'plugins_loaded',  array( $this, 'load_our_textdomain' ) );
   }
