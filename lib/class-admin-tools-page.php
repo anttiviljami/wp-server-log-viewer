@@ -24,10 +24,11 @@ class Admin_Tools_Page {
 
   public function admin_enqueue_styles( $hook ) {
     wp_register_style( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/styles/wp-server-log-viewer.css' );
-    wp_register_script( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/scripts/wp-server-log-viewer.js' );
+    wp_register_script( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/scripts/wp-server-log-viewer.js', array('jquery', 'jquery-ui-core', 'jquery-ui-dialog'), null, true );
 
     if( $hook === 'tools_page_wp-server-log-viewer' ) {
       wp_enqueue_style( 'wp_access_log_viewer' );
+      wp_enqueue_style('wp-jquery-ui-dialog');
       wp_enqueue_script( 'wp_access_log_viewer' );
     }
   }
@@ -45,30 +46,52 @@ class Admin_Tools_Page {
   }
 
   public function render_tools_page() {
+		global $current_log;
+
     $regex = null;
     if( isset( $_GET['regex'] ) ) {
       $regex = $_GET['regex'];
     }
+
+    $current_log = 0;
+    if( isset( $_GET['log'] ) ) {
+      $current_log = (int) $_GET['log'];
+    }
+
+		$logs = get_option( 'server_logs' );
+    if( is_null( $logs ) ) {
+      $logs = [];
+		}
+
+    $logs = [
+      '/data/log/php-error.log',
+      '/data/log/nginx-access.log',
+      '/data/log/nginx-error.log',
+		];
 ?>
 <div class="wrap">
   <h1><?php _e('Server Logs', 'wp-server-log-viewer'); ?> <a href="#" class="page-title-action"><?php _e('Add New', 'wp-server-log-viewer'); ?></a></h1>
   <h2 class="screen-reader-text">Select log file list</h2>
   <ul class="subsubsub">
-    <li><a href="tools.php?page=wp-server-log-viewer" class="current">nginx-access.log</a> |</li>
-    <li><a href="tools.php?page=wp-server-log-viewer">nginx-error.log</a></li>
+		<?php foreach( $logs as $key => $log ) : ?>
+    <li><a href="tools.php?page=wp-server-log-viewer&log=<?php echo $key ?>" class="<?php echo $key == $current_log ? 'current' : ''; ?>"><?php echo basename( $log ); ?></a><?php echo ( $key < ( count( $logs ) - 1 ) ) ? ' |' : ''; ?></li>
+		<?php endforeach; ?>
   </ul>
-  <?php $this->render_log_view( '/data/log/nginx-access.log', $regex ); ?>
+  <?php $this->render_log_view( $logs[ $current_log ], $regex ); ?>
 </div>
+<?php $this->render_new_log_dialog(); ?>
 <?php
   }
 
   public function render_log_view( $logfile, $regex = null ) {
+		global $current_log;
 ?>
 <div class="log-view">
   <div class="tablenav top">
     <form class="log-filter" method="get">
       <label class="screen-reader-text" for="regex">Regex:</label>
       <input type="hidden" name="page" value="wp-server-log-viewer">
+      <input type="hidden" name="log" value="<?php echo $current_log; ?>">
       <input type="search" name="regex" value="<?php echo $regex; ?>" placeholder="">
       <input type="submit" class="button" value="Filter">
     </form>
@@ -108,6 +131,25 @@ class Admin_Tools_Page {
     return true;
   }
 
+  public function render_new_log_dialog() {
+?>
+<div id="log-dialog" class="hidden">
+  <form>
+		<table class="form-table">
+			<tbody>
+				<tr>
+					<th scope="row"><label for="logpath">Log Path</label></th>
+          <td><input name="logpath" type="text" value="<?php echo ini_get('error_log'); ?>" class="regular-text"></td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="submit">
+			<button type="submit" class="button button-primary" id="create-new-log-submit"><?php _e('Add New Log', 'wp-server-log-viewer'); ?></button>
+		</p>
+  </form>
+</div>
+<?php
+  }
   public function ajax_fetch_log_rows() {
     // check permissions
     if( !current_user_can( $this->capability_required ) ) {
