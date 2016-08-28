@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin name: WP Access Log Viewer
- * Plugin URI: https://github.com/anttiviljami/wp-access-log-viewer
- * Description: View and analyse your server access logs from within the WordPress admin dashboard
+ * Plugin name: WP Server Log Viewer
+ * Plugin URI: https://github.com/anttiviljami/wp-server-log-viewer
+ * Description: View and analyse your server logs from within the WordPress admin dashboard
  * Version: 1.0
  * Author: @anttiviljami
  * Author URI: https://github.com/anttiviljami
  * License: GPLv3
- * Text Domain: wp-access-log-viewer
+ * Text Domain: wp-server-log-viewer
  */
 
 /** Copyright 2016 Antti Kuosmanen
@@ -26,14 +26,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-if ( ! class_exists('WP_Access_Log_Viewer') ) :
+if ( ! class_exists('WP_Server_Log_Viewer') ) :
 
-class WP_Access_Log_Viewer {
+class WP_Server_Log_Viewer {
   public static $instance;
 
   public static function init() {
     if ( is_null( self::$instance ) ) {
-      self::$instance = new WP_Access_Log_Viewer();
+      self::$instance = new WP_Server_Log_Viewer();
     }
     return self::$instance;
   }
@@ -53,12 +53,12 @@ class WP_Access_Log_Viewer {
    * Load our textdomain
    */
   public static function load_our_textdomain() {
-    load_plugin_textdomain( 'wp-access-log-viewer', false, dirname( plugin_basename(__FILE__) ) . '/lang/' );
+    load_plugin_textdomain( 'wp-server-log-viewer', false, dirname( plugin_basename(__FILE__) ) . '/lang/' );
   }
 }
 
 endif;
 
 // init the plugin
-$access_log_viewer = WP_Access_Log_Viewer::init();
+$access_log_viewer = WP_Server_Log_Viewer::init();
 

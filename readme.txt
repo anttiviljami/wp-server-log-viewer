@@ -1,4 +1,4 @@
-=== WP Access Log Viewer===
+=== WP Server Log Viewer===
 Contributors: Zuige
 Tags: access, log, viewer, nginx, apache
 Donate link: https://github.com/anttiviljami
@@ -10,13 +10,13 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
 
-View and analyse your server access logs from within the WordPress admin dashboard
+View and analyse your server logs from within the WordPress admin dashboard
 
 **Contributing**
 
 Please contribute to this project on Github. Pull requests welcome!
 
-https://github.com/anttiviljami/wp-access-log-viewer
+https://github.com/anttiviljami/wp-server-log-viewer
 
 == Installation ==
 
@@ -34,8 +34,8 @@ None yet.
 
 == Changelog ==
 
-Commit log is available at https://github.com/anttiviljami/wp-access-log-viewer/commits/master
+Commit log is available at https://github.com/anttiviljami/wp-server-log-viewer/commits/master
 
 == Upgrade Notice ==
 
-* 1.0 There's an update available to WP Access Log Viewer that makes it better. Please update it!
+* 1.0 There's an update available to WP Server Log Viewer that makes it better. Please update it!

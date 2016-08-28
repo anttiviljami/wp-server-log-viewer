@@ -23,10 +23,10 @@ class Admin_Tools_Page {
 	}
 
   public function admin_enqueue_styles( $hook ) {
-    wp_register_style( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/styles/wp-access-log-viewer.css' );
-    wp_register_script( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/scripts/wp-access-log-viewer.js' );
+    wp_register_style( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/styles/wp-server-log-viewer.css' );
+    wp_register_script( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/scripts/wp-server-log-viewer.js' );
 
-    if( $hook === 'tools_page_wp-access-log-viewer' ) {
+    if( $hook === 'tools_page_wp-server-log-viewer' ) {
       wp_enqueue_style( 'wp_access_log_viewer' );
       wp_enqueue_script( 'wp_access_log_viewer' );
     }
@@ -36,10 +36,10 @@ class Admin_Tools_Page {
   public function add_submenu_page() {
     add_submenu_page(
       'tools.php',
-      __('Server Logs', 'wp-access-log-viewer'),
-      __('Server Logs', 'wp-access-log-viewer'),
+      __('Server Logs', 'wp-server-log-viewer'),
+      __('Server Logs', 'wp-server-log-viewer'),
       $this->capability_required,
-      'wp-access-log-viewer',
+      'wp-server-log-viewer',
       array( $this, 'render_tools_page' )
     );
   }
@@ -51,11 +51,11 @@ class Admin_Tools_Page {
     }
 ?>
 <div class="wrap">
-  <h1><?php _e('Server Logs', 'wp-access-log-viewer'); ?> <a href="#" class="page-title-action"><?php _e('Add New', 'wp-access-log-viewer'); ?></a></h1>
+  <h1><?php _e('Server Logs', 'wp-server-log-viewer'); ?> <a href="#" class="page-title-action"><?php _e('Add New', 'wp-server-log-viewer'); ?></a></h1>
   <h2 class="screen-reader-text">Select log file list</h2>
   <ul class="subsubsub">
-    <li><a href="tools.php?page=wp-access-log-viewer" class="current">nginx-access.log</a> |</li>
-    <li><a href="tools.php?page=wp-access-log-viewer">nginx-error.log</a></li>
+    <li><a href="tools.php?page=wp-server-log-viewer" class="current">nginx-access.log</a> |</li>
+    <li><a href="tools.php?page=wp-server-log-viewer">nginx-error.log</a></li>
   </ul>
   <?php $this->render_log_view( '/data/log/nginx-access.log', $regex ); ?>
 </div>
@@ -68,7 +68,7 @@ class Admin_Tools_Page {
   <div class="tablenav top">
     <form class="log-filter" method="get">
       <label class="screen-reader-text" for="regex">Regex:</label>
-      <input type="hidden" name="page" value="wp-access-log-viewer">
+      <input type="hidden" name="page" value="wp-server-log-viewer">
       <input type="search" name="regex" value="<?php echo $regex; ?>" placeholder="">
       <input type="submit" class="button" value="Filter">
     </form>
@@ -81,7 +81,7 @@ class Admin_Tools_Page {
     </table>
   </div>
   <?php if ( ! $result ) : ?>
-  <p><?php _e('No hits.', 'wp-access-log-viewer' ); ?></p>
+  <p><?php _e('No hits.', 'wp-server-log-viewer' ); ?></p>
   <?php endif; ?>
 </div>
 <?php
