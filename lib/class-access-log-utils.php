@@ -1,9 +1,9 @@
 <?php
 
-if ( ! class_exists('Access_Log_Utils') ) :
+if ( ! class_exists('WP_Log_Utils') ) :
 
-class Access_Log_Utils {
-  public static function readlines( $filepath, $offset = 0, $lines = 1, $cutoff_bytes = null, $adaptive = true ) {
+class WP_Log_Utils {
+  public static function read_log_lines_backwards( $filepath, $offset = -1, $lines = 1, $cutoff_bytes = null ) {
     // Open file
     $f = @fopen( $filepath, 'rb' );
     $filesize = filesize( $filepath );
@@ -12,100 +12,99 @@ class Access_Log_Utils {
       return false;
     }
 
-    // Sets buffer size
-    if ( ! $adaptive ) {
-      $buffer = 4096;
-    } else {
-      $buffer = ( $lines < 2 ? 64 : ( $lines < 10 ? 512 : 4096 ) );
-    }
+    // buffer size is 4096 bytes
+    $buffer = 4096;
 
-    if( $offset < 0 ) {
-      if( is_null( $cutoff_bytes ) ) {
-        // Jump to last character
-        fseek( $f, -1, SEEK_END );
-      }
-      else {
-        // Jump to cutoff point
-        fseek( $f, $cutoff_bytes, SEEK_SET );
-      }
-
-      // Read it and adjust line number if necessary
-      // (Otherwise the result would be wrong if file doesn't end with a blank line)
-      if ( fread( $f, 1 ) != "\n") {
-        $lines -= 1;
-      }
+    if( is_null( $cutoff_bytes ) ) {
+      // Jump to last character
+      fseek( $f, -1, SEEK_END );
     }
     else {
-      // offset from top of file
-      fseek( $f, 0, SEEK_SET );
+      // Jump to cutoff point
+      fseek( $f, $cutoff_bytes - 1, SEEK_SET );
     }
 
     // Start reading
-    $output = '';
-    $chunk = '';
+    $output = [];
+		$linebuffer = '';
 
-    // save the original number of lines we wanted
-    $origlines = $lines;
+    // start with a newline if the last character of the file isn't one
+		if ( fread( $f, 1 ) != "\n") {
+			$linebuffer = "\n";
+		}
 
-    // add number of offset lines to $lines so we go far enough in the file
-    $lines += $offset < 0 ? abs( $offset + 1 ) : $offset;
+    // the newline in the end accouts for an extra line
+    $lines--;
 
     // While we would like more
-    while ( $lines >= 0 ) {
-      if( $offset < 0 ) {
-        // Figure out how far back we should jump
-        $seek = min( ftell( $f ), $buffer );
+    while ( $lines > 0 ) {
+      // Figure out how far back we should jump
+      $seek = min( ftell( $f ), $buffer );
 
-        // Do the jump (backwards, relative to where we are)
-        fseek( $f, -$seek, SEEK_CUR );
+      // if this is the last buffer we're looking at we need to take the first
+      // line without leading newline into account
+      $last_buffer = ( ftell( $f ) <= $buffer );
 
-        // Read a chunk
-        $chunk = fread( $f, $seek );
-
-        // Jump back to where we started reading
-        fseek( $f, -mb_strlen( $chunk, '8bit' ), SEEK_CUR );
-
-        // prepend it to our output
-        $output = $chunk . $output;
-      }
-      else {
-        // Figure out how far back we should jump
-        $seek = min( ( $filesize - ftell( $f ) ), $buffer );
-
-        // Read a chunk and append it to our output
-        $output = $output . ( $chunk = fread( $f, $seek ));
+      // file has ended
+      if( $seek <= 0 ) {
+        break;
       }
 
-      // Decrease our line counter
-      $lines -= substr_count( $chunk, "\n" );
+      // Do the jump (backwards, relative to where we are)
+      fseek( $f, -$seek, SEEK_CUR );
+
+      // Read a chunk
+      $chunk = fread( $f, $seek );
+
+      // Jump back to where we started reading
+      fseek( $f, -mb_strlen( $chunk, '8bit' ), SEEK_CUR );
+
+      // prepend it to our line buffer
+      $linebuffer = $chunk . $linebuffer;
+
+      // see if there are any complete lines in the line buffer
+      $complete_lines = [];
+
+      if( $last_buffer ) {
+        // last line is whatever is in the line buffer before the second line
+        $complete_lines []= rtrim( substr( $linebuffer, 0, strpos( $linebuffer, "\n" ) ) );
+        $lines--;
+      }
+
+      while( preg_match( '/\n(.*?\n)/s', $linebuffer, $matched ) ) {
+        // get the $1 match
+        $match = $matched[1];
+
+        // remove matched line from line buffer
+        $linebuffer = substr_replace( $linebuffer, '', strpos( $linebuffer, $match ), strlen( $match ) );
+
+        // add the line
+        $complete_lines []= rtrim( $match );
+        $lines--;
+      }
+
+      // remove any offset lines off the end
+      while( $offset < -1 && count( $complete_lines ) > 0 ) {
+        array_pop( $complete_lines );
+        $offset++;
+
+        // we need more lines after removing offset
+        $lines++;
+      }
+
+      // prepend complete lines to our output
+      $output = array_merge( $complete_lines, $output );
     }
 
-    // While we have too many lines
-    // (Because of buffer size we might have read too many)
-    while ( $lines++ < 0 ) {
-      if( $offset < 0 ) {
-        // Find first newline and remove all text before that
-        $output = substr( $output, strpos( $output, "\n" ) + 1 );
-      }
-      else {
-        // Find last newline and remove all text after that
-        $output = substr( $output, 0, strrpos( $output, "\n" ) );
-      }
+    // remove any lines that might have gone over due to the chunk size
+    while( ++$lines < 0 ) {
+      array_shift( $output );
     }
 
     // Close file
     fclose( $f );
 
-    // Strip the offset lines
-    $rows = array_filter( explode( "\n", $output ) );
-    if( $offset < 0 ) {
-      $rows = array_slice( $rows, 0, $origlines );
-    }
-    else {
-      $rows = array_slice( $rows, $offset, $origlines );
-    }
-
-    return $rows;
+    return $output;
   }
 }
 

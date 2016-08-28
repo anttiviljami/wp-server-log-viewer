@@ -3,9 +3,6 @@
 if ( ! class_exists('Admin_Tools_Page') ) :
 
 class Admin_Tools_Page {
-
-  public $logfile;
-
   public static $instance;
 
   public static function init() {
@@ -49,27 +46,30 @@ class Admin_Tools_Page {
 ?>
 <div class="wrap">
   <h1><?php _e('Access Log Viewer', 'wp-access-log-viewer'); ?></h1>
-  <?php $this->render_log_view(); ?>
+  <?php $this->render_log_view( '/data/log/continuity.log' ); ?>
+  <?php $this->render_log_view( '/data/log/php-error.log' ); ?>
+  <?php $this->render_log_view( '/data/log/nginx-access.log' ); ?>
+  <?php $this->render_log_view( '/data/log/nginx-error.log' ); ?>
 </div>
 <?php
   }
 
-  public function render_log_view() {
+  public function render_log_view( $logfile ) {
 ?>
-<h2><?php echo basename( $this->logfile ); ?></h2>
-<div class="log-table-view" data-logbytes="<?php echo filesize( $this->logfile ); ?>">
+<h2><?php echo basename( $logfile ); ?></h2>
+<div class="log-table-view" data-logfile="<?php esc_attr_e( $logfile ); ?>" data-logbytes="<?php esc_attr_e( filesize( $logfile ) ); ?>">
   <table class="wp-list-table widefat striped" cellspacing="0">
     <tbody>
-      <?php $this->render_rows( -1, 50 ); ?>
+      <?php $this->render_rows( $logfile, -1, 50 ); ?>
     </tbody>
   </table>
 </div>
 <?php
   }
 
-  public function render_rows( $offset, $lines, $cutoff_bytes = null ) {
+  public function render_rows( $logfile, $offset, $lines, $cutoff_bytes = null ) {
     require_once 'class-access-log-utils.php';
-    $rows = Access_Log_Utils::readlines( $this->logfile, $offset, $lines, $cutoff_bytes );
+    $rows = WP_Log_Utils::read_log_lines_backwards( $logfile, $offset, $lines, $cutoff_bytes );
 
     foreach( $rows as $row ) : ?>
       <tr>
@@ -79,9 +79,16 @@ class Admin_Tools_Page {
   }
 
   public function ajax_fetch_log_rows() {
+    if( isset( $_REQUEST['logfile'] ) ) {
+      $logfile = $_REQUEST['logfile'];
+    }
+    else {
+      exit;
+    }
+
     $offset = 0;
     if( isset( $_REQUEST['offset'] ) ) {
-      $offset = -( (int) $_REQUEST['offset'] );
+      $offset = -( 1 + (int) $_REQUEST['offset'] );
     }
 
     $cutoff_bytes = null;
@@ -89,7 +96,7 @@ class Admin_Tools_Page {
       $cutoff_bytes = (int) $_REQUEST['cutoff_bytes'];
     }
 
-    $this->render_rows( $offset, 100, $cutoff_bytes );
+    $this->render_rows( $logfile, $offset, 100, $cutoff_bytes );
     exit;
   }
 }
