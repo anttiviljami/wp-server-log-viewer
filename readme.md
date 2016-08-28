@@ -5,7 +5,7 @@ View and analyse your server logs from within the WordPress admin dashboard
 
 Features:
 - Read any server log file right from within the WordPress admin
-- Filter and analyse your logs with regex grep
+- Filter and analyse your logs with grep-like regex
 - Progressive file reading. Doesn't take up tons of memory
 
 ## Screenshots

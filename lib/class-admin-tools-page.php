@@ -77,6 +77,7 @@ class Admin_Tools_Page {
     <li><a href="tools.php?page=wp-server-log-viewer&log=<?php echo $key ?>" class="<?php echo $key == $current_log ? 'current' : ''; ?>"><?php echo basename( $log ); ?></a><?php echo ( $key < ( count( $logs ) - 1 ) ) ? ' |' : ''; ?></li>
 		<?php endforeach; ?>
   </ul>
+  <p class="clear"></p>
   <?php $this->render_log_view( $logs[ $current_log ], $regex ); ?>
 </div>
 <?php $this->render_new_log_dialog(); ?>
@@ -87,6 +88,7 @@ class Admin_Tools_Page {
 		global $current_log;
 ?>
 <div class="log-view">
+  <?php if( is_readable( $logfile ) ) : ?>
   <div class="tablenav top">
     <form class="log-filter" method="get">
       <label class="screen-reader-text" for="regex">Regex:</label>
@@ -103,7 +105,12 @@ class Admin_Tools_Page {
       </tbody>
     </table>
   </div>
-  <?php if ( ! $result ) : ?>
+  <?php endif; ?>
+  <?php if( ! is_readable( $logfile ) ) : ?>
+  <div id="message" class="notice notice-error">
+    <p><?php echo wp_sprintf( __("File %s does not exist or we don't have permissions to read it.", 'wp-server-log-viewer' ), $logfile ); ?></p>
+  </div>
+  <?php elseif ( ! $result ) : ?>
   <p><?php _e('No hits.', 'wp-server-log-viewer' ); ?></p>
   <?php endif; ?>
 </div>
