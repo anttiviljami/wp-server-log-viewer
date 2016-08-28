@@ -1,7 +1,7 @@
 {
-  "name": "wp-access-log-viewer",
+  "name": "wp-server-log-viewer",
   "version": "1.0.0",
-  "description": "View and analyse your server access logs from within the WordPress admin dashboard",
+  "description": "View and analyse your server logs from within the WordPress admin dashboard",
   "main": "gulpfile.js",
   "scripts": {
     "build": "gulp",
@@ -9,10 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anttiviljami/wp-access-log-viewer.git"
+    "url": "git+https://github.com/anttiviljami/wp-server-log-viewer.git"
   },
   "keywords": [
-    "access",
+    "server",
     "log",
     "viewer",
     "nginx",
@@ -23,9 +23,9 @@
   "author": "anttiviljami",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/anttiviljami/wp-access-log-viewer/issues"
+    "url": "https://github.com/anttiviljami/wp-server-log-viewer/issues"
   },
-  "homepage": "https://github.com/anttiviljami/wp-access-log-viewer#readme",
+  "homepage": "https://github.com/anttiviljami/wp-server-log-viewer#readme",
   "dependencies": {
     "gulp": "^3.9.1",
     "gulp-cssnano": "^2.1.2",

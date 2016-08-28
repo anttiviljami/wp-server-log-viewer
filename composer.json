@@ -1,6 +1,6 @@
 {
-    "name": "anttiviljami/wp-access-log-viewer",
-    "description": "View and analyse your server access logs from within the WordPress admin dashboard",
+    "name": "anttiviljami/wp-server-log-viewer",
+    "description": "View and analyse your server logs from within the WordPress admin dashboard",
     "type": "wordpress-plugin",
     "license": "GPLv3",
     "authors": [
