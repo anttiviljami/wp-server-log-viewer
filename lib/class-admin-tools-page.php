@@ -3,6 +3,8 @@
 if ( ! class_exists('Admin_Tools_Page') ) :
 
 class Admin_Tools_Page {
+  private $capability_required = 'activate_plugins';
+
   public static $instance;
 
   public static function init() {
@@ -36,7 +38,7 @@ class Admin_Tools_Page {
       'tools.php',
       __('Access Log Viewer', 'wp-access-log-viewer'),
       __('Access Logs', 'wp-access-log-viewer'),
-      'activate_plugins',
+      $this->capability_required,
       'wp-access-log-viewer',
       array( $this, 'render_tools_page' )
     );
@@ -79,6 +81,11 @@ class Admin_Tools_Page {
   }
 
   public function ajax_fetch_log_rows() {
+    // check permissions
+    if( !current_user_can( $this->capability_required ) ) {
+      exit;
+    }
+
     if( isset( $_REQUEST['logfile'] ) ) {
       $logfile = $_REQUEST['logfile'];
     }
