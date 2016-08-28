@@ -17,6 +17,7 @@ class Admin_Tools_Page {
   private function __construct() {
     $this->logfile = '/data/log/nginx-access.log';
 
+    add_action( 'admin_init', array( $this, 'init_actions' ) );
     add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
     add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
     add_action( 'wp_ajax_fetch_log_rows', array( $this, 'ajax_fetch_log_rows' ) );
@@ -32,7 +33,6 @@ class Admin_Tools_Page {
       wp_enqueue_script( 'wp_access_log_viewer' );
     }
   }
-
 
   public function add_submenu_page() {
     add_submenu_page(
@@ -63,11 +63,11 @@ class Admin_Tools_Page {
       $logs = [];
 		}
 
-    $logs = [
+    /*$logs = [
       '/data/log/php-error.log',
       '/data/log/nginx-access.log',
       '/data/log/nginx-error.log',
-		];
+    ];*/
 ?>
 <div class="wrap">
   <h1><?php _e('Server Logs', 'wp-server-log-viewer'); ?> <a href="#" class="page-title-action"><?php _e('Add New', 'wp-server-log-viewer'); ?></a></h1>
@@ -107,6 +107,16 @@ class Admin_Tools_Page {
   <p><?php _e('No hits.', 'wp-server-log-viewer' ); ?></p>
   <?php endif; ?>
 </div>
+
+<form class="log-filter" method="get">
+  <label class="screen-reader-text" for="regex">Regex:</label>
+  <input type="hidden" name="page" value="wp-server-log-viewer">
+  <input type="hidden" name="action" value="remove">
+  <input type="hidden" name="log" value="<?php echo $current_log; ?>">
+  <p>
+    <input type="submit" class="button delete" value="Remove Log">
+  </p>
+</form>
 <?php
   }
 
@@ -134,7 +144,9 @@ class Admin_Tools_Page {
   public function render_new_log_dialog() {
 ?>
 <div id="log-dialog" class="hidden">
-  <form>
+  <form action="" method="get">
+    <input type="hidden" name="page" value="wp-server-log-viewer">
+    <input type="hidden" name="action" value="new">
 		<table class="form-table">
 			<tbody>
 				<tr>
@@ -144,7 +156,7 @@ class Admin_Tools_Page {
 			</tbody>
 		</table>
 		<p class="submit">
-			<button type="submit" class="button button-primary" id="create-new-log-submit"><?php _e('Add New Log', 'wp-server-log-viewer'); ?></button>
+      <input type="submit" class="button button-primary" id="create-new-log-submit" value="<?php _e('Add New Log', 'wp-server-log-viewer'); ?>">
 		</p>
   </form>
 </div>
@@ -180,6 +192,46 @@ class Admin_Tools_Page {
 
     $this->render_rows( $logfile, $offset, 100, $regex, $cutoff_bytes );
     exit;
+  }
+
+  public function init_actions() {
+    // only run these actions on the log viewer page
+    if( ! isset( $_GET['page'] ) || 'wp-server-log-viewer' != $_GET['page'] ) {
+      return;
+    }
+
+    if( isset( $_GET['action'] ) && 'new' === $_GET['action'] && isset( $_GET['logpath'] ) ) {
+      // new log was added
+      $logs = get_option( 'server_logs' );
+      if( is_null( $logs ) ) {
+        $logs = [];
+      }
+
+      $log = trim( $_GET['logpath'] );
+      $logs[] = $log;
+      $logs = array_values( $logs );
+
+      $index = array_search( $log, $logs );
+
+      update_option( 'server_logs', $logs );
+
+      wp_safe_redirect( admin_url('tools.php?page=wp-server-log-viewer&log=' . $index) );
+    }
+
+    if( isset( $_GET['action'] ) && 'remove' === $_GET['action'] && isset( $_GET['log'] ) ) {
+      // log was removed
+      $logs = get_option( 'server_logs' );
+      if( is_null( $logs ) ) {
+        $logs = [];
+      }
+
+      unset( $logs[ (int) $_GET['log'] ] );
+      $logs = array_values( $logs );
+
+      update_option( 'server_logs', $logs );
+
+      wp_safe_redirect( admin_url('tools.php?page=wp-server-log-viewer') );
+    }
   }
 }
 
