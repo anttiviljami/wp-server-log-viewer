@@ -1,20 +1,33 @@
-.log-table-view {
-  position: relative;
-  max-width: 100%;
-  max-height: 250px;
-  overflow: auto;
-  border: 1px solid #e5e5e5;
-  table {
-    border: 0;
-    white-space: nowrap;
-    font-family: monospace;
+.log-view {
+  input[name="regex"] {
+    height: 28px;
+    margin: 0 4px 0 0;
   }
-  .overlay {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,.5);
+  .log-table-view {
+    position: relative;
+    max-width: 100%;
+    max-height: 325px;
+    overflow: auto;
+    border: 1px solid #e5e5e5;
+    table {
+      border: 0;
+      white-space: nowrap;
+      font-family: monospace;
+      td {
+        padding-top: 0;
+        padding-bottom: 0;
+        span.highlight {
+          background-color: #ffff00;
+        }
+      }
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,.5);
+    }
   }
 }

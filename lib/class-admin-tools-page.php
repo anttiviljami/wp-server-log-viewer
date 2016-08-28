@@ -36,8 +36,8 @@ class Admin_Tools_Page {
   public function add_submenu_page() {
     add_submenu_page(
       'tools.php',
-      __('Access Log Viewer', 'wp-access-log-viewer'),
-      __('Access Logs', 'wp-access-log-viewer'),
+      __('Server Logs', 'wp-access-log-viewer'),
+      __('Server Logs', 'wp-access-log-viewer'),
       $this->capability_required,
       'wp-access-log-viewer',
       array( $this, 'render_tools_page' )
@@ -45,39 +45,67 @@ class Admin_Tools_Page {
   }
 
   public function render_tools_page() {
+    $regex = null;
+    if( isset( $_GET['regex'] ) ) {
+      $regex = $_GET['regex'];
+    }
 ?>
 <div class="wrap">
-  <h1><?php _e('Access Log Viewer', 'wp-access-log-viewer'); ?></h1>
-  <?php $this->render_log_view( '/data/log/continuity.log' ); ?>
-  <?php $this->render_log_view( '/data/log/php-error.log' ); ?>
-  <?php $this->render_log_view( '/data/log/nginx-access.log' ); ?>
-  <?php $this->render_log_view( '/data/log/nginx-error.log' ); ?>
+  <h1><?php _e('Server Logs', 'wp-access-log-viewer'); ?> <a href="#" class="page-title-action"><?php _e('Add New', 'wp-access-log-viewer'); ?></a></h1>
+  <h2 class="screen-reader-text">Select log file list</h2>
+  <ul class="subsubsub">
+    <li><a href="tools.php?page=wp-access-log-viewer" class="current">nginx-access.log</a> |</li>
+    <li><a href="tools.php?page=wp-access-log-viewer">nginx-error.log</a></li>
+  </ul>
+  <?php $this->render_log_view( '/data/log/nginx-access.log', $regex ); ?>
 </div>
 <?php
   }
 
-  public function render_log_view( $logfile ) {
+  public function render_log_view( $logfile, $regex = null ) {
 ?>
-<h2><?php echo basename( $logfile ); ?></h2>
-<div class="log-table-view" data-logfile="<?php esc_attr_e( $logfile ); ?>" data-logbytes="<?php esc_attr_e( filesize( $logfile ) ); ?>">
-  <table class="wp-list-table widefat striped" cellspacing="0">
-    <tbody>
-      <?php $this->render_rows( $logfile, -1, 50 ); ?>
-    </tbody>
-  </table>
+<div class="log-view">
+  <div class="tablenav top">
+    <form class="log-filter" method="get">
+      <label class="screen-reader-text" for="regex">Regex:</label>
+      <input type="hidden" name="page" value="wp-access-log-viewer">
+      <input type="search" name="regex" value="<?php echo $regex; ?>" placeholder="">
+      <input type="submit" class="button" value="Filter">
+    </form>
+  </div>
+  <div class="log-table-view" data-logfile="<?php esc_attr_e( $logfile ); ?>" data-logbytes="<?php esc_attr_e( filesize( $logfile ) ); ?>" data-regex="<?php esc_attr_e( $regex ); ?>">
+    <table class="wp-list-table widefat striped" cellspacing="0">
+      <tbody>
+        <?php $result = $this->render_rows( $logfile, -1, 50, $regex ); ?>
+      </tbody>
+    </table>
+  </div>
+  <?php if ( ! $result ) : ?>
+  <p><?php _e('No hits.', 'wp-access-log-viewer' ); ?></p>
+  <?php endif; ?>
 </div>
 <?php
   }
 
-  public function render_rows( $logfile, $offset, $lines, $cutoff_bytes = null ) {
+  public function render_rows( $logfile, $offset, $lines, $regex = null, $cutoff_bytes = null ) {
     require_once 'class-access-log-utils.php';
-    $rows = WP_Log_Utils::read_log_lines_backwards( $logfile, $offset, $lines, $cutoff_bytes );
+
+    // escape special regex chars
+    $regex = '#' . preg_quote( $regex ) . '#';
+
+    $rows = WP_Log_Utils::read_log_lines_backwards( $logfile, $offset, $lines, $regex, $cutoff_bytes );
+
+    if( empty( $rows ) ) {
+      return false;
+    }
 
     foreach( $rows as $row ) : ?>
       <tr>
         <td><span class="logrow"><?php echo $row; ?></span></td>
       </tr>
     <?php endforeach;
+
+    return true;
   }
 
   public function ajax_fetch_log_rows() {
@@ -98,12 +126,17 @@ class Admin_Tools_Page {
       $offset = -( 1 + (int) $_REQUEST['offset'] );
     }
 
+    $regex = null;
+    if( isset( $_REQUEST['regex'] ) ) {
+      $regex = $_REQUEST['regex'];
+    }
+
     $cutoff_bytes = null;
     if( isset( $_REQUEST['cutoff_bytes'] ) ) {
       $cutoff_bytes = (int) $_REQUEST['cutoff_bytes'];
     }
 
-    $this->render_rows( $logfile, $offset, 100, $cutoff_bytes );
+    $this->render_rows( $logfile, $offset, 100, $regex, $cutoff_bytes );
     exit;
   }
 }

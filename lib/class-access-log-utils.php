@@ -18,7 +18,7 @@ class WP_Log_Utils {
    * @access public
    * @return array
    */
-  public static function read_log_lines_backwards( $filepath, $offset = -1, $lines = 1, $cutoff_bytes = null ) {
+  public static function read_log_lines_backwards( $filepath, $offset = -1, $lines = 1, $regex = null, $cutoff_bytes = null ) {
     // Open file
     $f = @fopen( $filepath, 'rb' );
     $filesize = filesize( $filepath );
@@ -83,7 +83,6 @@ class WP_Log_Utils {
       if( $last_buffer ) {
         // last line is whatever is in the line buffer before the second line
         $complete_lines []= rtrim( substr( $linebuffer, 0, strpos( $linebuffer, "\n" ) ) );
-        $lines--;
       }
 
       while( preg_match( '/\n(.*?\n)/s', $linebuffer, $matched ) ) {
@@ -95,17 +94,26 @@ class WP_Log_Utils {
 
         // add the line
         $complete_lines []= rtrim( $match );
-        $lines--;
       }
 
       // remove any offset lines off the end
       while( $offset < -1 && count( $complete_lines ) > 0 ) {
         array_pop( $complete_lines );
         $offset++;
-
-        // we need more lines after removing offset
-        $lines++;
       }
+
+      // apply a regex filter
+      if( ! is_null( $regex ) ) {
+        $complete_lines = preg_grep( $regex, $complete_lines );
+
+        // wrap regex match part in <span class="highlight">
+        foreach( $complete_lines as &$line ) {
+          $line = preg_replace( $regex, '<span class="highlight">$0</span>', $line );
+        }
+      }
+
+      // decrement lines needed
+      $lines -= count( $complete_lines );
 
       // prepend complete lines to our output
       $output = array_merge( $complete_lines, $output );

@@ -13,6 +13,7 @@
           'action': 'fetch_log_rows',
           'logfile': $this.data('logfile'),
           'offset': $('td', this).length,
+          'regex': $this.data('regex'),
           'cutoff_bytes': $this.data('logbytes')
         };
         console.log(payload);
