@@ -57,7 +57,7 @@ class Admin_Tools_Page {
   public function render_log_view() {
 ?>
 <h2><?php echo basename( $this->logfile ); ?></h2>
-<div class="log-table-view">
+<div class="log-table-view" data-logbytes="<?php echo filesize( $this->logfile ); ?>">
   <table class="wp-list-table widefat striped" cellspacing="0">
     <tbody>
       <?php $this->render_rows( -1, 50 ); ?>
@@ -67,9 +67,9 @@ class Admin_Tools_Page {
 <?php
   }
 
-  public function render_rows( $offset, $lines ) {
+  public function render_rows( $offset, $lines, $cutoff_bytes = null ) {
     require_once 'class-access-log-utils.php';
-    $rows = Access_Log_Utils::readlines( $this->logfile, $offset, $lines );
+    $rows = Access_Log_Utils::readlines( $this->logfile, $offset, $lines, $cutoff_bytes );
 
     foreach( $rows as $row ) : ?>
       <tr>
@@ -83,7 +83,13 @@ class Admin_Tools_Page {
     if( isset( $_REQUEST['offset'] ) ) {
       $offset = -( (int) $_REQUEST['offset'] );
     }
-    $this->render_rows( $offset, 100 );
+
+    $cutoff_bytes = null;
+    if( isset( $_REQUEST['cutoff_bytes'] ) ) {
+      $cutoff_bytes = (int) $_REQUEST['cutoff_bytes'];
+    }
+
+    $this->render_rows( $offset, 100, $cutoff_bytes );
     exit;
   }
 }

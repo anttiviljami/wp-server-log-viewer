@@ -3,7 +3,7 @@
 if ( ! class_exists('Access_Log_Utils') ) :
 
 class Access_Log_Utils {
-  public static function readlines( $filepath, $offset = 0, $lines = 1, $adaptive = true ) {
+  public static function readlines( $filepath, $offset = 0, $lines = 1, $cutoff_bytes = null, $adaptive = true ) {
     // Open file
     $f = @fopen( $filepath, 'rb' );
     $filesize = filesize( $filepath );
@@ -20,8 +20,14 @@ class Access_Log_Utils {
     }
 
     if( $offset < 0 ) {
-      // Jump to last character
-      fseek( $f, -1, SEEK_END );
+      if( is_null( $cutoff_bytes ) ) {
+        // Jump to last character
+        fseek( $f, -1, SEEK_END );
+      }
+      else {
+        // Jump to cutoff point
+        fseek( $f, $cutoff_bytes, SEEK_SET );
+      }
 
       // Read it and adjust line number if necessary
       // (Otherwise the result would be wrong if file doesn't end with a blank line)

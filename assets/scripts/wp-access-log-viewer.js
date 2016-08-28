@@ -9,9 +9,13 @@
         $this.append( $overlay );
         // load more lines
         var offset = $('td', this).length;
-        $.post(window.ajaxurl, {'action':'fetch_log_rows','offset':offset}, function(response) {
+        var payload = {
+          'action': 'fetch_log_rows',
+          'offset': $('td', this).length,
+          'cutoff_bytes': $this.data('logbytes')
+        };
+        $.post(window.ajaxurl, payload, function(response) {
           var oldheight = $('table', $this).height();
-          console.log(offset);
           $('tbody', $this).prepend(response);
           $this.scrollTop($('table', $this).height() - oldheight);
           $overlay.remove();
