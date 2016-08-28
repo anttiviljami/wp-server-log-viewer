@@ -63,11 +63,11 @@ class Admin_Tools_Page {
       $logs = [];
 		}
 
-    /*$logs = [
-      '/data/log/php-error.log',
-      '/data/log/nginx-access.log',
-      '/data/log/nginx-error.log',
-    ];*/
+    $logfile = null;
+    if( isset( $logs[ $current_log ] ) ) {
+      $logfile = $logs[ $current_log ];
+    }
+
 ?>
 <div class="wrap">
   <h1><?php _e('Server Logs', 'wp-server-log-viewer'); ?> <a href="#" class="page-title-action"><?php _e('Add New', 'wp-server-log-viewer'); ?></a></h1>
@@ -78,7 +78,7 @@ class Admin_Tools_Page {
 		<?php endforeach; ?>
   </ul>
   <p class="clear"></p>
-  <?php $this->render_log_view( $logs[ $current_log ], $regex ); ?>
+  <?php $this->render_log_view( $logfile, $regex ); ?>
 </div>
 <?php $this->render_new_log_dialog(); ?>
 <?php
@@ -106,16 +106,23 @@ class Admin_Tools_Page {
     </table>
   </div>
   <?php endif; ?>
-  <?php if( ! is_readable( $logfile ) ) : ?>
-  <div id="message" class="notice notice-error">
-    <p><?php echo wp_sprintf( __("File %s does not exist or we don't have permissions to read it.", 'wp-server-log-viewer' ), $logfile ); ?></p>
-  </div>
-  <?php elseif ( ! $result ) : ?>
-  <p><?php _e('No hits.', 'wp-server-log-viewer' ); ?></p>
+  <?php if( ! is_null( $logfile ) ) : ?>
+    <?php if( ! is_readable( $logfile ) ) : ?>
+    <div id="message" class="notice notice-error">
+      <p><?php echo wp_sprintf( __("File %s does not exist or we don't have permissions to read it.", 'wp-server-log-viewer' ), $logfile ); ?></p>
+    </div>
+    <?php elseif ( ! $result ) : ?>
+    <p><?php _e('No hits.', 'wp-server-log-viewer' ); ?></p>
+    <?php endif; ?>
+  <?php else : ?>
+    <div id="message" class="notice updated">
+      <p><?php echo _e('No logs yet. Click "Add New" to view your first log.', 'wp-server-log-viewer' ); ?></p>
+    </div>
   <?php endif; ?>
 </div>
 
-<form class="log-filter" method="get">
+<?php if( ! is_null( $logfile ) ) : ?>
+<form method="get">
   <label class="screen-reader-text" for="regex">Regex:</label>
   <input type="hidden" name="page" value="wp-server-log-viewer">
   <input type="hidden" name="action" value="remove">
@@ -124,6 +131,7 @@ class Admin_Tools_Page {
     <input type="submit" class="button delete" value="Remove Log">
   </p>
 </form>
+<?php endif; ?>
 <?php
   }
 
