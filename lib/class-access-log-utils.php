@@ -3,6 +3,21 @@
 if ( ! class_exists('WP_Log_Utils') ) :
 
 class WP_Log_Utils {
+
+  /**
+   * WP_Log_Utils::read_log_lines_backwards()
+   *
+   * Reads $lines of $filename starting from negative $offset backwards.
+   * Returns an array of lines in forwards order
+   *
+   * @param mixed $filepath
+   * @param mixed $offset
+   * @param int $lines
+   * @param mixed $cutoff_bytes
+   * @static
+   * @access public
+   * @return array
+   */
   public static function read_log_lines_backwards( $filepath, $offset = -1, $lines = 1, $cutoff_bytes = null ) {
     // Open file
     $f = @fopen( $filepath, 'rb' );
@@ -106,6 +121,7 @@ class WP_Log_Utils {
 
     return $output;
   }
+
 }
 
 endif;
