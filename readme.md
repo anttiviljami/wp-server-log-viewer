@@ -9,7 +9,7 @@ Features:
 
 ## Screenshots
 
-Screenshots here
+[![Gif](https://thumbs.gfycat.com/VagueCourteousDuckbillcat-size_restricted.gif)](http://gfycat.com/VagueCourteousDuckbillcat)
 
 ## Installation
 
