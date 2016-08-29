@@ -41,12 +41,12 @@ class WP_Log_Utils {
 
     // Start reading
     $output = [];
-		$linebuffer = '';
+    $linebuffer = '';
 
     // start with a newline if the last character of the file isn't one
-		if ( fread( $f, 1 ) != "\n") {
-			$linebuffer = "\n";
-		}
+    if ( fread( $f, 1 ) != "\n") {
+      $linebuffer = "\n";
+    }
 
     // the newline in the end accouts for an extra line
     $lines--;

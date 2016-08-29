@@ -21,7 +21,7 @@ class Admin_Tools_Page {
     add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
     add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
     add_action( 'wp_ajax_fetch_log_rows', array( $this, 'ajax_fetch_log_rows' ) );
-	}
+  }
 
   public function admin_enqueue_styles( $hook ) {
     wp_register_style( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/styles/wp-server-log-viewer.css' );
@@ -46,7 +46,7 @@ class Admin_Tools_Page {
   }
 
   public function render_tools_page() {
-		global $current_log;
+    global $current_log;
 
     $regex = null;
     if( isset( $_GET['regex'] ) ) {
@@ -58,10 +58,10 @@ class Admin_Tools_Page {
       $current_log = (int) $_GET['log'];
     }
 
-		$logs = get_option( 'server_logs' );
+    $logs = get_option( 'server_logs' );
     if( is_null( $logs ) ) {
       $logs = [];
-		}
+    }
 
     $logfile = null;
     if( isset( $logs[ $current_log ] ) ) {
@@ -73,9 +73,9 @@ class Admin_Tools_Page {
   <h1><?php _e('Server Logs', 'wp-server-log-viewer'); ?> <a href="#" class="page-title-action"><?php _e('Add New', 'wp-server-log-viewer'); ?></a></h1>
   <h2 class="screen-reader-text">Select log file list</h2>
   <ul class="subsubsub">
-		<?php foreach( $logs as $key => $log ) : ?>
+    <?php foreach( $logs as $key => $log ) : ?>
     <li><a href="tools.php?page=wp-server-log-viewer&log=<?php echo $key ?>" class="<?php echo $key == $current_log ? 'current' : ''; ?>"><?php echo basename( $log ); ?></a><?php echo ( $key < ( count( $logs ) - 1 ) ) ? ' |' : ''; ?></li>
-		<?php endforeach; ?>
+    <?php endforeach; ?>
   </ul>
   <p class="clear"></p>
   <?php $this->render_log_view( $logfile, $regex ); ?>
@@ -85,7 +85,7 @@ class Admin_Tools_Page {
   }
 
   public function render_log_view( $logfile, $regex = null ) {
-		global $current_log;
+    global $current_log;
 ?>
 <div class="log-view">
   <?php if( is_readable( $logfile ) ) : ?>
@@ -162,17 +162,17 @@ class Admin_Tools_Page {
   <form action="" method="get">
     <input type="hidden" name="page" value="wp-server-log-viewer">
     <input type="hidden" name="action" value="new">
-		<table class="form-table">
-			<tbody>
-				<tr>
-					<th scope="row"><label for="logpath">Log Path</label></th>
+    <table class="form-table">
+      <tbody>
+        <tr>
+          <th scope="row"><label for="logpath">Log Path</label></th>
           <td><input name="logpath" type="text" value="<?php echo ini_get('error_log'); ?>" class="regular-text"></td>
-				</tr>
-			</tbody>
-		</table>
-		<p class="submit">
+        </tr>
+      </tbody>
+    </table>
+    <p class="submit">
       <input type="submit" class="button button-primary" id="create-new-log-submit" value="<?php _e('Add New Log', 'wp-server-log-viewer'); ?>">
-		</p>
+    </p>
   </form>
 </div>
 <?php
