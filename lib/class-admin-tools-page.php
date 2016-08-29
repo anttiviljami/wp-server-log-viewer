@@ -23,6 +23,13 @@ class Admin_Tools_Page {
     add_action( 'wp_ajax_fetch_log_rows', array( $this, 'ajax_fetch_log_rows' ) );
   }
 
+  /**
+   * Enqueues styles and scripts for the admin tools page
+   *
+   * @param mixed $hook
+   * @access public
+   * @return void
+   */
   public function admin_enqueue_styles( $hook ) {
     wp_register_style( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/styles/wp-server-log-viewer.css' );
     wp_register_script( 'wp_access_log_viewer', plugin_dir_url( __DIR__ ) . 'dist/scripts/wp-server-log-viewer.js', array('jquery', 'jquery-ui-core', 'jquery-ui-dialog'), null, true );
@@ -34,6 +41,13 @@ class Admin_Tools_Page {
     }
   }
 
+
+  /**
+   * Adds the submenu page for Server Logs under tools
+   *
+   * @access public
+   * @return void
+   */
   public function add_submenu_page() {
     add_submenu_page(
       'tools.php',
@@ -45,6 +59,15 @@ class Admin_Tools_Page {
     );
   }
 
+
+  /**
+   * Renders the admin tools page content
+   *
+   * @see add_submenu_page
+   *
+   * @access public
+   * @return void
+   */
   public function render_tools_page() {
     global $current_log;
 
@@ -84,6 +107,15 @@ class Admin_Tools_Page {
 <?php
   }
 
+
+  /**
+   * Renders the log view for a specific $logfile on the tools page
+   *
+   * @param string $logfile
+   * @param string $regex
+   * @access public
+   * @return void
+   */
   public function render_log_view( $logfile, $regex = null ) {
     global $current_log;
 ?>
@@ -135,6 +167,18 @@ class Admin_Tools_Page {
 <?php
   }
 
+
+  /**
+   * Renders $lines rows of a $logfile ending at $offset from the end of the cutoff marker
+   *
+   * @param string $logfile
+   * @param int $offset
+   * @param int $lines
+   * @param string $regex
+   * @param int $cutoff_bytes
+   * @access public
+   * @return void
+   */
   public function render_rows( $logfile, $offset, $lines, $regex = null, $cutoff_bytes = null ) {
     require_once 'class-access-log-utils.php';
 
@@ -155,6 +199,7 @@ class Admin_Tools_Page {
 
     return true;
   }
+
 
   public function render_new_log_dialog() {
 ?>
@@ -177,6 +222,14 @@ class Admin_Tools_Page {
 </div>
 <?php
   }
+
+
+  /**
+   * An ajax endpoint that fetches and renders the log rows for a logfile
+   *
+   * @access public
+   * @return void
+   */
   public function ajax_fetch_log_rows() {
     // check permissions
     if( !current_user_can( $this->capability_required ) ) {
@@ -209,6 +262,13 @@ class Admin_Tools_Page {
     exit;
   }
 
+
+  /**
+   * Handles form submissions on the admin tools page
+   *
+   * @access public
+   * @return void
+   */
   public function init_actions() {
     // only run these actions on the log viewer page
     if( ! isset( $_GET['page'] ) || 'wp-server-log-viewer' != $_GET['page'] ) {
@@ -248,6 +308,7 @@ class Admin_Tools_Page {
       wp_safe_redirect( admin_url('tools.php?page=wp-server-log-viewer') );
     }
   }
+
 }
 
 endif;

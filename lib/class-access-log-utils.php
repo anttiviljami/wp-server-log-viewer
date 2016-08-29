@@ -5,15 +5,13 @@ if ( ! class_exists('WP_Log_Utils') ) :
 class WP_Log_Utils {
 
   /**
-   * WP_Log_Utils::read_log_lines_backwards()
+   * Reads $lines lines from $filename ending at $offset and returns the lines as array
    *
-   * Reads $lines of $filename starting from negative $offset backwards.
-   * Returns an array of lines in forwards order
-   *
-   * @param mixed $filepath
-   * @param mixed $offset
+   * @param string $filepath
+   * @param int $offset
    * @param int $lines
-   * @param mixed $cutoff_bytes
+   * @param string $regex
+   * @param int $cutoff_bytes
    * @static
    * @access public
    * @return array

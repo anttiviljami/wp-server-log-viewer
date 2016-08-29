@@ -50,7 +50,11 @@ class WP_Server_Log_Viewer {
   }
 
   /**
-   * Load our textdomain
+   * Loads gettext translation files
+   *
+   * @static
+   * @access public
+   * @return void
    */
   public static function load_our_textdomain() {
     load_plugin_textdomain( 'wp-server-log-viewer', false, dirname( plugin_basename(__FILE__) ) . '/lang/' );
