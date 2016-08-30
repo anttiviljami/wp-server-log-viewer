@@ -1,6 +1,5 @@
 !.gitkeep
 vendor/*
 node_modules/*
-dist/*
 .*~
 *~
