@@ -15,8 +15,6 @@ class Admin_Tools_Page {
   }
 
   private function __construct() {
-    $this->logfile = '/data/log/nginx-access.log';
-
     add_action( 'admin_init', array( $this, 'init_actions' ) );
     add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
     add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
