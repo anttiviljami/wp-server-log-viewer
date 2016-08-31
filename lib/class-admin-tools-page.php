@@ -3,7 +3,7 @@
 if ( ! class_exists('Admin_Tools_Page') ) :
 
 class Admin_Tools_Page {
-  private $capability_required = 'activate_plugins';
+  private $capability_required;
 
   public static $instance;
 
@@ -15,6 +15,13 @@ class Admin_Tools_Page {
   }
 
   private function __construct() {
+    $this->capability_required = 'activate_plugins';
+
+    // on multisite, only the super-admin can use this plugin
+    if( is_multisite() ) {
+      $this->capability_required = 'manage_network';
+    }
+
     add_action( 'admin_init', array( $this, 'init_actions' ) );
     add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
     add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
